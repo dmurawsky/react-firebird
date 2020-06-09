@@ -1,13 +1,64 @@
 import React from "react";
 import { Provider } from "react-redux";
-import { initializeStore } from "../redux";
-import {
-  firebaseIsInitialized,
-  initializeApp,
-  onAuthStateChanged,
-  signInAnonymously,
-} from "./firebase";
-import { ROOT_PAYLOAD_UPSERT } from "./redux";
+import firebase from "firebase/app";
+import "firebase/database";
+import "firebase/auth";
+import { createStore, applyMiddleware, combineReducers } from "redux";
+import { composeWithDevTools } from "redux-devtools-extension";
+
+//////////////////////// REDUX ////////////////////////
+
+const initialState = {};
+
+const ROOT_PAYLOAD_UPSERT = "ROOT_PAYLOAD_UPSERT";
+
+const reducer = (state = initialState, action) => {
+  switch (action.type) {
+    case ROOT_PAYLOAD_UPSERT:
+      return { ...state, ...action.payload };
+    default:
+      return state;
+  }
+};
+
+const initializeStore = (preloadedState = initialState, reducers = null) => {
+  return createStore(
+    reducers ? combineReducers(reducers) : reducer,
+    preloadedState,
+    composeWithDevTools(applyMiddleware())
+  );
+};
+
+////////////////////// FIREBASE //////////////////////
+
+const firebaseIsInitialized = () => firebase.apps.length > 0;
+
+const initializeApp = () =>
+  firebase.initializeApp({
+    apiKey: "AIzaSyDO00jPn7EO2lMe0vBP-qvs0qidB_sB1SQ",
+    authDomain: "ritual-recipes.firebaseapp.com",
+    databaseURL: "https://ritual-recipes.firebaseio.com",
+    projectId: "ritual-recipes",
+    storageBucket: "ritual-recipes.appspot.com",
+    messagingSenderId: "847696364267",
+    appId: "1:847696364267:web:fd07be386619c426caf4ae",
+    measurementId: "G-S938KKHZJY",
+  });
+
+const signInAnonymously = () => firebase.auth().signInAnonymously();
+
+const onAuthStateChanged = (cb) => firebase.auth().onAuthStateChanged(cb);
+
+const onValue = (path, cb) =>
+  firebase
+    .database()
+    .ref(path)
+    .on("value", (snap) => cb(snap.val()));
+
+const updateFirebase = (path, dataObj) =>
+  firebase.database().ref(path).update(dataObj);
+
+//////////////////// withFirebird ////////////////////
 
 export default (PageComponent, { ssr = true, auth = null } = {}) => {
   const WithFirebird = ({ initialReduxState, ...props }) => {
@@ -77,7 +128,7 @@ export default (PageComponent, { ssr = true, auth = null } = {}) => {
         }
       });
     }
-    if (auth.anonymous) {
+    if (auth && auth.anonymous) {
       signInAnonymously();
     }
   }
