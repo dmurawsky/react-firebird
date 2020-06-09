@@ -1,10 +1,11 @@
 {
   "name": "react-firebird",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "This package provides a simple setup and sync of redux and firebase to be added to a react.js/next.js app.",
   "main": "index.js",
   "scripts": {
-    "build": "babel --presets @babel/preset-react src",
+    "publish": "npm publish --access public",
+    "build": "babel --presets=@babel/preset-react,@babel/preset-env src --out-file index.js",
     "test": "npm run test"
   },
   "repository": {
@@ -23,8 +24,9 @@
   },
   "homepage": "https://github.com/dmurawsky/react-firebird#readme",
   "devDependencies": {
-    "@babel/preset-react": "^7.10.1",
-    "babel-cli": "^6.26.0"
+    "@babel/core": "^7.1.0",
+    "@babel/preset-env": "^7.10.2",
+    "@babel/preset-react": "^7.10.1"
   },
   "peerDependencies": {
     "firebase": "^7.15.0",
